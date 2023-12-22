@@ -27,6 +27,19 @@ dtb-$(CONFIG_ARCH_LAHAINA) += \
 	lahaina-mtp-v2.1.dtb
 endif
 
+ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+dtbo-$(CONFIG_ARCH_YUPIK) +=    \
+	yupik-idp-overlay.dtbo
+
+yupik-idp-overlay.dtbo-base := yupik.dtb
+
+else
+
+dtb-$(CONFIG_ARCH_YUPIK) += \
+	yupik-idp.dtb
+endif
+
+
 always		:= $(dtb-y)
 subdir-y	:= $(dts-dirs)
 clean-files	:= *.dtb *.dtbo
