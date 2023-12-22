@@ -7987,12 +7987,41 @@ static struct snd_soc_dai_link msm_afe_rxtx_lb_be_dai_link[] = {
 
 #ifdef OPLUS_ARCH_EXTENDS
 SND_SOC_DAILINK_DEFS(tfa98xx_tert_mi2s_rx,
-	DAILINK_COMP_ARRAY(COMP_CPU("msm-dai-q6-mi2s.4")),
-	DAILINK_COMP_ARRAY(COMP_CODEC("tfa98xx.7-0035", "tfa98xx-aif-7-35"),
-			COMP_CODEC("tfa98xx.7-0034", "tfa98xx-aif-7-34"),),
+	DAILINK_COMP_ARRAY(COMP_CPU("msm-dai-q6-mi2s.2")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("tfa98xx.4-0035", "tfa98xx-aif-4-35"),
+			COMP_CODEC("tfa98xx.4-0034", "tfa98xx-aif-4-34"),),
 	DAILINK_COMP_ARRAY(COMP_PLATFORM("msm-pcm-routing")));
 
-static struct snd_soc_dai_link tfa98xx_stereo_be_dai_links[] = {
+SND_SOC_DAILINK_DEFS(tfa98xx_quin_mi2s_rx,
+	DAILINK_COMP_ARRAY(COMP_CPU("msm-dai-q6-mi2s.4")),
+	DAILINK_COMP_ARRAY(COMP_CODEC("tfa98xx.0-0034", "tfa98xx-aif-0-34"),),
+	DAILINK_COMP_ARRAY(COMP_PLATFORM("msm-pcm-routing")));
+
+static struct snd_soc_dai_link tfa98xx_mi2s_be_dai_links[] = {
+	{
+		.name = LPASS_BE_PRI_MI2S_RX,
+		.stream_name = "Primary MI2S Playback",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_PRI_MI2S_RX,
+		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.ops = &msm_mi2s_be_ops,
+		.ignore_suspend = 1,
+		.ignore_pmdown_time = 1,
+		SND_SOC_DAILINK_REG(pri_mi2s_rx),
+	},
+	{
+		.name = LPASS_BE_SEC_MI2S_RX,
+		.stream_name = "Secondary MI2S Playback",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_SECONDARY_MI2S_RX,
+		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.ops = &msm_mi2s_be_ops,
+		.ignore_suspend = 1,
+		.ignore_pmdown_time = 1,
+		SND_SOC_DAILINK_REG(sec_mi2s_rx),
+	},
 	{
 		.name = LPASS_BE_TERT_MI2S_RX,
 		.stream_name = "Tertiary MI2S Playback",
@@ -8006,7 +8035,95 @@ static struct snd_soc_dai_link tfa98xx_stereo_be_dai_links[] = {
 		SND_SOC_DAILINK_REG(tfa98xx_tert_mi2s_rx),
 		.num_codecs = ARRAY_SIZE(tfa98xx_tert_mi2s_rx_codecs),
 	},
+	{
+		.name = LPASS_BE_QUAT_MI2S_RX,
+		.stream_name = "Quaternary MI2S Playback",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX,
+		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.ops = &msm_mi2s_be_ops,
+		.ignore_suspend = 1,
+		.ignore_pmdown_time = 1,
+		SND_SOC_DAILINK_REG(quat_mi2s_rx),
+	},
+	{
+		.name = LPASS_BE_QUIN_MI2S_RX,
+		.stream_name = "Quinary MI2S Playback",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_QUINARY_MI2S_RX,
+		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.ops = &msm_mi2s_be_ops,
+		.ignore_suspend = 1,
+		.ignore_pmdown_time = 1,
+		SND_SOC_DAILINK_REG(tfa98xx_quin_mi2s_rx),
+	},
+	{
+		.name = LPASS_BE_SENARY_MI2S_RX,
+		.stream_name = "Senary MI2S Playback",
+		.no_pcm = 1,
+		.dpcm_playback = 1,
+		.id = MSM_BACKEND_DAI_SENARY_MI2S_RX,
+		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.ops = &msm_mi2s_be_ops,
+		.ignore_suspend = 1,
+		.ignore_pmdown_time = 1,
+		SND_SOC_DAILINK_REG(sen_mi2s_rx),
+	},
 };
+
+void exchange_mi2s_dai_config(const char *product_name, int mi2s_id)
+{
+	int i = 0;
+	struct snd_soc_dai_link *temp_link;
+	int target_mi2s_id = MSM_BACKEND_DAI_TERTIARY_MI2S_RX;
+
+	switch (mi2s_id) {
+		case 0:
+			target_mi2s_id = MSM_BACKEND_DAI_PRI_MI2S_RX;
+			break;
+
+		case 1:
+			target_mi2s_id = MSM_BACKEND_DAI_SECONDARY_MI2S_RX;
+			break;
+
+		case 2:
+			target_mi2s_id = MSM_BACKEND_DAI_TERTIARY_MI2S_RX;
+			break;
+
+		case 3:
+			target_mi2s_id = MSM_BACKEND_DAI_QUATERNARY_MI2S_RX;
+			break;
+
+		case 4:
+			target_mi2s_id = MSM_BACKEND_DAI_QUINARY_MI2S_RX;
+			break;
+
+		case 5:
+			target_mi2s_id = MSM_BACKEND_DAI_SENARY_MI2S_RX;
+			break;
+
+		default:
+			target_mi2s_id = MSM_BACKEND_DAI_TERTIARY_MI2S_RX;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(msm_mi2s_be_dai_links); i++) {
+		temp_link = &msm_mi2s_be_dai_links[i];
+		if (temp_link->id == target_mi2s_id) {
+			#ifdef CONFIG_SND_SOC_TFA98XX
+			if (!strcmp(product_name, "nxp")) {
+				pr_info("%s: use nxp stereo dailink replace\n", __func__);
+				memcpy(temp_link, &tfa98xx_mi2s_be_dai_links[mi2s_id],
+						sizeof(tfa98xx_mi2s_be_dai_links[mi2s_id]));
+			}
+			#endif
+		}
+	}
+
+	return;
+}
+
 #endif /* OPLUS_ARCH_EXTENDS */
 
 static struct snd_soc_dai_link msm_lahaina_dai_links[
